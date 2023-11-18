@@ -2,25 +2,36 @@ package org.bgonzalez.appmockito.ejemplos.services;
 
 import org.bgonzalez.appmockito.ejemplos.models.Examen;
 import org.bgonzalez.appmockito.ejemplos.repositories.ExamenRepository;
-import org.bgonzalez.appmockito.ejemplos.repositories.PreguntasReposiory;
+import org.bgonzalez.appmockito.ejemplos.repositories.PreguntasRepository;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
 public class ExamenServiceImpl implements ExamenService{
-    private ExamenRepository examenRepository;
-    private PreguntasReposiory preguntasReposiory;
 
-    public ExamenServiceImpl(ExamenRepository examenRepository, PreguntasReposiory preguntasReposiory) {
+    private ExamenRepository examenRepository;
+    private PreguntasRepository preguntasRepository;
+
+    public ExamenServiceImpl(ExamenRepository examenRepository, PreguntasRepository preguntasRepository) {
+
         this.examenRepository = examenRepository;
-        this.preguntasReposiory = preguntasReposiory;
+        this.preguntasRepository = preguntasRepository;
+    }
+
+    @Override
+    public Examen guardar(Examen examen) {
+        if(!examen.getPreguntas().isEmpty()){
+            preguntasRepository.guardarVarias(examen.getPreguntas());
+        }
+        return examenRepository.guardar(examen);
     }
 
     @Override
     public Optional<Examen> findExamenPorNombre(String nombre) {
-        return this.examenRepository.findAll()
-                .stream()
-                .filter(e->e.getNombre().contains(nombre)).findFirst();
+        return examenRepository.findAll().stream().filter(
+                e->e.getNombre().contains(nombre)
+        ).findFirst();
     }
 
     @Override
@@ -29,7 +40,7 @@ public class ExamenServiceImpl implements ExamenService{
         Examen examen = null;
         if(examenOptional.isPresent()){
             examen = examenOptional.orElseThrow();
-            List<String> preguntas = preguntasReposiory.findPreguntasPorExamenId(examen.getId());
+            List<String> preguntas = preguntasRepository.findPreguntasPorExamenId(examenOptional.orElseThrow().getId());
             examen.setPreguntas(preguntas);
         }
         return examen;

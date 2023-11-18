@@ -1,4 +1,4 @@
-package org.bgonzalez.appmockito.ejemplos;
+package org.bgonzalez.appmockito;
 
 public class Main {
     public static void main(String[] args) {
